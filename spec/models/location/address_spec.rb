@@ -2,6 +2,8 @@ require 'spec_helper'
 
 module Location
   describe Address do
-    pending "add some examples to (or delete) #{__FILE__}"
+    it { should belong_to(:district) }
+    it { should belong_to(:city) }
+    it { should belong_to(:state) }
   end
 end
