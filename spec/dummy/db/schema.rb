@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131209160523) do
+ActiveRecord::Schema.define(version: 20131209172128) do
 
   create_table "location_addresses", force: true do |t|
     t.string   "postal_code"
@@ -19,8 +19,6 @@ ActiveRecord::Schema.define(version: 20131209160523) do
     t.string   "number"
     t.string   "complement"
     t.integer  "district_id"
-    t.integer  "city_id"
-    t.integer  "state_id"
     t.decimal  "latitude"
     t.decimal  "longitude"
     t.integer  "addressable_id"
@@ -30,21 +28,25 @@ ActiveRecord::Schema.define(version: 20131209160523) do
   end
 
   add_index "location_addresses", ["addressable_type", "addressable_id"], name: "index_location_addressable_id_and_type"
-  add_index "location_addresses", ["city_id"], name: "index_location_addresses_on_city_id"
   add_index "location_addresses", ["district_id"], name: "index_location_addresses_on_district_id"
-  add_index "location_addresses", ["state_id"], name: "index_location_addresses_on_state_id"
 
   create_table "location_cities", force: true do |t|
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "state_id"
   end
+
+  add_index "location_cities", ["state_id"], name: "index_location_cities_on_state_id"
 
   create_table "location_districts", force: true do |t|
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "city_id"
   end
+
+  add_index "location_districts", ["city_id"], name: "index_location_districts_on_city_id"
 
   create_table "location_states", force: true do |t|
     t.string   "name"
