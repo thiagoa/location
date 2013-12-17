@@ -1,4 +1,6 @@
 FactoryGirl.define do
+  sequence(:postal_code) { |n| "59022-11#{n}" }
+
   factory :state, class: Location::State do
     name { %w{Pernambuco Alagoas Amazonas Sergipe}.sample }
   end
@@ -14,7 +16,7 @@ FactoryGirl.define do
   end
 
   factory :address, class: Location::Address do
-    sequence(:postal_code) { |n| "59082-12#{n}" }
+    postal_code
     sequence(:address) { |n| "Street #{n}" }
     sequence(:number)
     sequence(:complement) { |n| "Subway #{n}" }
