@@ -137,8 +137,7 @@ PLATFORMS
 
 DEPENDENCIES
   factory_girl_rails (= 4.3.0)
-  guard (= 2.2.4)
-  guard-rspec
+  guard-rspec (= 4.2.0)
   location!
   rspec-rails (= 2.14.0)
   shoulda-matchers (= 2.4.0)
