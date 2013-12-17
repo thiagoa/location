@@ -13,14 +13,13 @@ module Location
   end
 
   describe Seeker do
-    subject(:seeker) { described_class.new(postal_code) }
+    let(:postal_code) { FactoryGirl.generate(:postal_code) }
+    subject(:seeker)  { described_class.new(postal_code) }
 
     it { should respond_to :postal_code }
     it { should respond_to :service }
     it { should respond_to :address }
     it { should respond_to :error }
-
-    let(:postal_code) { FactoryGirl.generate(:postal_code) }
 
     it "initializes with a postal code" do
       expect(seeker.postal_code).to eq postal_code
