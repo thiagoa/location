@@ -2,6 +2,10 @@ module Location
   class Address < ActiveRecord::Base
     belongs_to :district
     belongs_to :addressable, polymorphic: true
+    has_one :city, through: :district
+    has_one :state, through: :city
+
+    accepts_nested_attributes_for :district
 
     validates :address, presence: true, length: { maximum: 150 }
     validates :number, length: { maximum: 20 }

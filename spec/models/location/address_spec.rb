@@ -3,6 +3,9 @@ require 'spec_helper'
 module Location
   describe Address do
     it { should belong_to(:district) }
+    it { should have_one(:city).through(:district) }
+    it { should have_one(:state).through(:city) }
+    it { should accept_nested_attributes_for(:district) }
     it { should validate_presence_of(:address) }
     it { should validate_presence_of(:district) }
     it { should validate_presence_of(:postal_code) }
