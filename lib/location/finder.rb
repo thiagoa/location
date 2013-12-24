@@ -4,7 +4,7 @@ module Location
     attr_reader   :address, :error
 
     def self.build(postal_code)
-      new(postal_code, RepublicaService.new)
+      new(postal_code, Services::Republica.new)
     end
 
     def initialize(postal_code, service)
@@ -20,7 +20,7 @@ module Location
     def find
       service.fetch(postal_code, address)
       @success = true
-    rescue ServiceException => e
+    rescue Services::Error => e
       @error = e.message
       @success = false
     ensure
@@ -33,10 +33,12 @@ module Location
     end
   end
 
-  class ServiceException < Exception; end
+  module Services
+    class Error < ::StandardError; end
 
-  class RepublicaService
-    def fetch(postal_code, address)
+    class Republica
+      def fetch(postal_code, address)
+      end
     end
   end
 end

@@ -4,7 +4,7 @@ require 'location/finder'
 module Location
   describe Finder do
     let(:postal_code)     { FactoryGirl.generate(:postal_code) }
-    let(:default_service) { RepublicaService.new }
+    let(:default_service) { Services::Republica.new }
 
     it "initializes with a postal code and a service" do
       finder = described_class.new(postal_code, default_service)
@@ -65,7 +65,7 @@ module Location
       context 'unsuccessful find' do
         it 'returns false' do
           message = 'Some error occurred'
-          service.stub(:fetch).and_raise(ServiceException.new, message)
+          service.stub(:fetch).and_raise(Services::Error.new, message)
           expect(@finder.find).to be_false
           expect(@finder).to_not be_successful
           expect(@finder.error).to eq message
