@@ -14,7 +14,7 @@ module Location
 
   describe Location do
     describe '#configuration' do
-      it "is by default an instance of Configuration" do
+      it "returns a Configuration object by default" do
         expect(Location.configuration).to be_instance_of(Configuration)
       end
     end
