@@ -4,7 +4,7 @@ module Location
     attr_reader   :address, :error
 
     def self.build(postal_code)
-      new(postal_code, Services::Republica.new)
+      new(postal_code, Location.default_service.new)
     end
 
     def initialize(postal_code, service)
