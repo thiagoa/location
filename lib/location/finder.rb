@@ -21,7 +21,7 @@ module Location
       service.fetch(postal_code, address)
       @success = true
     rescue ServiceException => e
-      error = e.message
+      @error = e.message
       @success = false
     ensure
       yield(self) if block_given?

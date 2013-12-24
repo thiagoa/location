@@ -63,9 +63,11 @@ module Location
 
       context 'unsuccessful find' do
         it 'returns false' do
-          service.stub(:fetch).and_raise(ServiceException.new)
+          message = 'Some error occurred'
+          service.stub(:fetch).and_raise(ServiceException.new, message)
           expect(@finder.find).to be_false
           expect(@finder.success?).to be_false
+          expect(@finder.error).to eq message
         end
       end
     end
