@@ -24,6 +24,7 @@ module Location
       @error = e.message
       @success = false
     ensure
+      @address.freeze
       yield(self) if block_given?
     end
 

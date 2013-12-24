@@ -58,6 +58,7 @@ module Location
           expect(service).to receive(:fetch).with(postal_code, @finder.address)
           expect(@finder.find).to be_true
           expect(@finder).to be_successful
+          expect(@finder.address).to be_frozen
         end
       end
 
@@ -68,6 +69,7 @@ module Location
           expect(@finder.find).to be_false
           expect(@finder).to_not be_successful
           expect(@finder.error).to eq message
+          expect(@finder.address).to be_frozen
         end
       end
     end
