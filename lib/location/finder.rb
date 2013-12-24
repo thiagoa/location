@@ -32,13 +32,4 @@ module Location
       attr_accessor :postal_code, :address, :number, :complement, :district, :city, :state
     end
   end
-
-  module Services
-    class Error < ::StandardError; end
-
-    class Republica
-      def fetch(postal_code, address)
-      end
-    end
-  end
 end
