@@ -13,7 +13,7 @@ module Location
       @address     = Address.new
     end
 
-    def success?
+    def successful?
       @success
     end
 

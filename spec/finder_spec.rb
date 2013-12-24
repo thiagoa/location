@@ -49,7 +49,7 @@ module Location
 
       context 'no find' do
         it 'returns nil for success?' do
-          expect(@finder.success?).to be_nil
+          expect(@finder.successful?).to be_nil
         end
       end
 
@@ -57,7 +57,7 @@ module Location
         it 'returns true' do
           expect(service).to receive(:fetch).with(postal_code, @finder.address)
           expect(@finder.find).to be_true
-          expect(@finder.success?).to be_true
+          expect(@finder).to be_successful
         end
       end
 
@@ -66,7 +66,7 @@ module Location
           message = 'Some error occurred'
           service.stub(:fetch).and_raise(ServiceException.new, message)
           expect(@finder.find).to be_false
-          expect(@finder.success?).to be_false
+          expect(@finder).to_not be_successful
           expect(@finder.error).to eq message
         end
       end
