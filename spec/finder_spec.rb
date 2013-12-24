@@ -6,7 +6,7 @@ require 'location/services/republica'
 module Location
   describe Finder do
     let(:postal_code)     { FactoryGirl.generate(:postal_code) }
-    let(:default_service) { Services::Republica.new }
+    let(:default_service) { Location.configuration.default_service.new }
 
     it "initializes with a postal code and a service" do
       finder = described_class.new(postal_code, default_service)

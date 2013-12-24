@@ -5,12 +5,22 @@ Dir[File.dirname(__FILE__) + '/location/services/**/*.rb'].each { |f| require f 
 
 module Location
   class << self
-    def configure
-      yield self
+    attr_accessor :configuration
+
+    def configuration
+      @configuration ||= Configuration.new
     end
 
-    attr_accessor :default_service
+    def configure
+      yield configuration
+    end
   end
 
-  self.default_service = Services::Republica
+  class Configuration
+    attr_accessor :default_service
+
+    def initialize
+      @default_service = Services::Republica
+    end
+  end
 end
