@@ -1,4 +1,4 @@
-require "location/engine"
+require 'location/engine' if defined?(Rails)
 
 module Location
 end
