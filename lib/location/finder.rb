@@ -1,6 +1,7 @@
 module Location
   class Finder
-    attr_accessor :postal_code, :service, :address, :error
+    attr_accessor :postal_code, :service
+    attr_reader   :address, :error
 
     def self.build(postal_code)
       new(postal_code, RepublicaService.new)

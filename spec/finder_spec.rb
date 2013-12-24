@@ -17,12 +17,22 @@ module Location
         described_class.new(postal_code, default_service) 
       end
 
-      it { should respond_to :postal_code }
-      it { should respond_to :service }
-      it { should respond_to :address }
-      it { should respond_to :error }
-
       its(:address) { should be_a Finder::Address }
+      its(:service) { should be_a default_service.class }
+
+      it { should_not respond_to :address= }
+      it { should_not respond_to :error= }
+
+      it "has a postal_code attr_accessor" do
+        finder.postal_code = '11111-111'
+        expect(finder.postal_code).to eq '11111-111'
+      end
+
+      it "has a service attr_accessor" do
+        service = Object.new
+        finder.service = service
+        expect(finder.service).to eq service
+      end
     end
 
     describe '.find' do
