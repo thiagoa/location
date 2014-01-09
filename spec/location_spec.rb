@@ -3,13 +3,8 @@ require 'location'
 
 module Location
   describe Configuration do
-    its(:default_service) { should be(Services::Republica) }
-
-    it 'assigns a default service' do
-      service = Object.new
-      subject.default_service = service
-      expect(subject.default_service).to eq service
-    end
+    expect_it { to respond_to_option(:service_options).with_value({}) }
+    expect_it { to respond_to_option(:default_service).with_value(Services::Republica) }
   end
 
   describe Location do

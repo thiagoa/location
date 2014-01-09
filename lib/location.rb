@@ -18,9 +18,11 @@ module Location
 
   class Configuration
     attr_accessor :default_service
+    attr_accessor :service_options
 
     def initialize
       @default_service = Services::Republica
+      @service_options = {}
     end
   end
 end
