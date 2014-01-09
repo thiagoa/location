@@ -15,4 +15,11 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
   config.infer_base_class_for_anonymous_controllers = false
   config.order = "random"
+  config.alias_example_to :expect_it
+  config.filter_run_excluding external: true
+end
+
+RSpec::Core::MemoizedHelpers.module_eval do
+  alias to should
+  alias to_not should_not
 end
