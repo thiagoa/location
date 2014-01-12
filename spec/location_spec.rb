@@ -5,6 +5,7 @@ module Location
   describe Configuration do
     expect_it { to respond_to_option(:service_options).with_value({}) }
     expect_it { to respond_to_option(:default_service).with_value(Services::Republica) }
+    expect_it { to respond_to_option(:concat_type_to_address).with_value(false) }
   end
 
   describe Location do

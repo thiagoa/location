@@ -19,10 +19,12 @@ module Location
   class Configuration
     attr_accessor :default_service
     attr_accessor :service_options
+    attr_accessor :concat_type_to_address
 
     def initialize
       @default_service = Services::Republica
       @service_options = {}
+      @concat_type_to_address = false
     end
   end
 end

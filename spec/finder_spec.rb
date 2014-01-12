@@ -85,12 +85,39 @@ module Location
   end
 
   describe Finder::Address do
-    it { should respond_to :postal_code }
-    it { should respond_to :address }
-    it { should respond_to :number }
-    it { should respond_to :complement }
-    it { should respond_to :district }
-    it { should respond_to :city }
-    it { should respond_to :state }
+    %w{postal_code type address number complement district city state}.each do |field|
+      expect_it { to respond_to_option field }
+    end
+
+    context "with concat_type_to_address enabled" do
+      before { Location.configuration.concat_type_to_address = true }
+
+      it "concats when address is specified after type" do
+        subject.type    = 'Rua'
+        subject.address = 'Walter Figueiredo'
+      end
+
+      it "concats when address is specified before type" do
+        subject.address = 'Walter Figueiredo'
+        subject.type    = 'Rua'
+      end
+
+      after(:each) {
+        expect(subject.type).to eq 'Rua'
+        expect(subject.address).to eq 'Rua Walter Figueiredo'
+      }
+    end
+
+    context "with concat_type_to_address disabled" do
+      before { Location.configuration.concat_type_to_address = false }
+
+      it "does not concat" do
+        subject.type    = 'Rua'
+        subject.address = 'Walter Figueiredo'
+
+        expect(subject.type).to eq 'Rua'
+        expect(subject.address).to eq 'Walter Figueiredo'
+      end
+    end
   end
 end

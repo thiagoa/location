@@ -29,7 +29,27 @@ module Location
     end
 
     class Address
-      attr_accessor :postal_code, :address, :number, :complement, :district, :city, :state
+      attr_accessor :type, :postal_code, :address, :number
+      attr_accessor :complement, :district, :city, :state
+
+      def type=(type)
+        @type = type
+        concat_type_to_address! if concat_type_to_address?
+      end
+
+      def address=(address)
+        @address = address
+        concat_type_to_address! if concat_type_to_address?
+      end
+
+      private
+        def concat_type_to_address?
+          Location.configuration.concat_type_to_address && type && address
+        end
+
+        def concat_type_to_address!
+          @address = "#{type} #{address}"
+        end
     end
   end
 end
