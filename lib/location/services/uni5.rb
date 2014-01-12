@@ -13,7 +13,8 @@ module Location
           address.state    = res['uf']
           address.city     = res['cidade']
           address.district = res['bairro']
-          address.address  = "#{res['tipo_logradouro']} #{res['logradouro']}"
+          address.type     = res['tipo_logradouro']
+          address.address  = res['logradouro']
         end
       end
 

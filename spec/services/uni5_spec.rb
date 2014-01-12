@@ -5,6 +5,8 @@ require 'webmock/rspec'
 
 module Location
   describe Services::Uni5 do
+    before { Location.configuration.concat_type_to_address = false }
+
     let(:cep)      { '59022-120' }
     let!(:address) { Finder::Address.new }
 
@@ -48,7 +50,8 @@ module Location
           expect(address.state).to eq 'RN'
           expect(address.city).to eq 'Natal'
           expect(address.district).to eq 'Barro Vermelho'
-          expect(address.address).to eq 'Rua Doutor José Bezerra'
+          expect(address.type).to eq 'Rua'
+          expect(address.address).to eq 'Doutor José Bezerra'
         end
       end
 
@@ -69,7 +72,8 @@ module Location
         expect(address.state).to eq 'RN'
         expect(address.city).to eq 'Natal'
         expect(address.district).to eq 'Barro Vermelho'
-        expect(address.address).to eq 'Rua Doutor José Bezerra'
+        expect(address.type).to eq 'Rua'
+        expect(address.address).to eq 'Doutor José Bezerra'
       end
     end
   end
