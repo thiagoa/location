@@ -17,9 +17,8 @@ module Location
         subject.stub(:http_request)
         subject.fetch(cep, address)
         options = subject.options
-
-        expect(options[:cep]).to eq cep
-        expect(options[:formato]).to eq 'json'
+        
+        expect([options[:cep], options[:formato]]).to eq [cep, 'json']
       end
     end
 
@@ -47,11 +46,10 @@ module Location
         end
 
         it "feeds the address object" do
-          expect(address.state).to eq 'RN'
-          expect(address.city).to eq 'Natal'
-          expect(address.district).to eq 'Barro Vermelho'
-          expect(address.type).to eq 'Rua'
-          expect(address.address).to eq 'Doutor José Bezerra'
+          address.tap do |a|
+            expect([a.state, a.city, a.district, a.type, a.address]).to eq \
+              ['RN', 'Natal', 'Barro Vermelho', 'Rua', 'Doutor José Bezerra']
+          end
         end
       end
 
@@ -69,11 +67,10 @@ module Location
         WebMock.allow_net_connect!
         subject.fetch(cep, address)
 
-        expect(address.state).to eq 'RN'
-        expect(address.city).to eq 'Natal'
-        expect(address.district).to eq 'Barro Vermelho'
-        expect(address.type).to eq 'Rua'
-        expect(address.address).to eq 'Doutor José Bezerra'
+        address.tap do |a|
+          expect([a.state, a.city, a.district, a.type, a.address]).to eq \
+            ['RN', 'Natal', 'Barro Vermelho', 'Rua', 'Doutor José Bezerra']
+        end
       end
     end
   end

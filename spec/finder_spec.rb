@@ -62,6 +62,11 @@ module Location
           expect(@finder).to be_successful
           expect(@finder.address).to be_frozen
         end
+
+        it 'fetches the address' do
+          service.stub(:fetch)
+          @finder.find
+        end
       end
 
       context 'unsuccessful find' do
