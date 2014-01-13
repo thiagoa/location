@@ -4,7 +4,8 @@ require 'json'
 module Location
   module Services
     class Uni5
-      URL = 'http://webservice.uni5.net/web_cep.php'
+      SUCCESS_FULL_ADDRESS     = '1'
+      SUCCESS_ONLY_CITY_AND_UF = '2'
 
       def fetch(postal_code, address)
         @postal_code = postal_code
@@ -28,12 +29,36 @@ module Location
       end
 
       private
-        def http_request
-          uri       = URI(URL)
-          uri.query = URI.encode_www_form(options)
-          result    = JSON.parse Net::HTTP.get(uri)
+        def success?(result)
+          [SUCCESS_FULL_ADDRESS, SUCCESS_ONLY_CITY_AND_UF].include? result
+        end
 
-          yield result
+        def eval_result(json)
+          result = JSON.parse(json)
+
+          if success?(result['resultado'])
+            result
+          else
+            raise Error.new, %{Couldn't find address for #{@postal_code}}
+          end
+        end
+
+        def uri
+          URI('http://webservice.uni5.net/web_cep.php').tap do |uri|
+            uri.query = URI.encode_www_form(options)
+          end
+        end
+
+        def http_request
+          response  = Net::HTTP.get_response(uri)
+
+          if response.code == '200'
+            yield eval_result(response.body)
+          else
+            raise Error.new, %{Got response #{response.code} for #{@postal_code}}
+          end
+        rescue Net::HTTPBadResponse => e
+          raise Error.new, %{Got a bad response}
         end
     end
   end
