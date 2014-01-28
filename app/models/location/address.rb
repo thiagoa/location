@@ -5,20 +5,16 @@ module Location
     has_one :city, through: :district
     has_one :state, through: :city
 
-    accepts_nested_attributes_for :district
-
-    validates :address, presence: true, length: { maximum: 150 }
+    before_save :format_postal_code
+    validates :address, length: { maximum: 150 }
     validates :number, length: { maximum: 20 }
     validates :complement, length: { maximum: 40 }
     validates :latitude, :longitude, numericality: true, allow_blank: true
-    validates :district, presence: true
-    validates :postal_code, presence: true
-
-    before_save :format_postal_code
 
     private
-      def format_postal_code
-        postal_code.gsub!(/[^0-9]/, '')
-      end
+
+    def format_postal_code
+      postal_code.gsub!(/[^0-9]/, '') if postal_code.present?
+    end
   end
 end

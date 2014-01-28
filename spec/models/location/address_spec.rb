@@ -5,10 +5,7 @@ module Location
     it { should belong_to(:district) }
     it { should have_one(:city).through(:district) }
     it { should have_one(:state).through(:city) }
-    it { should accept_nested_attributes_for(:district) }
-    it { should validate_presence_of(:address) }
-    it { should validate_presence_of(:district) }
-    it { should validate_presence_of(:postal_code) }
+
     it { should ensure_length_of(:address).is_at_most(150) }
     it { should ensure_length_of(:number).is_at_most(20) }
     it { should ensure_length_of(:complement).is_at_most(40) }

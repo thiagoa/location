@@ -7,6 +7,10 @@ module Location
       new(postal_code, Location.configuration.default_service.new)
     end
 
+    def self.find(postal_code, &block)
+      build(postal_code).find(&block)
+    end
+
     def initialize(postal_code, service)
       @postal_code = postal_code
       @service     = service

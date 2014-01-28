@@ -37,7 +37,7 @@ module Location
       end
     end
 
-    describe '.find' do
+    describe '#find' do
       it 'yields self' do
         finder = described_class.new(postal_code, default_service)
         expect { |b| finder.find(&b) }.to yield_with_args finder
@@ -81,11 +81,20 @@ module Location
       end
     end
 
-    describe '#build' do
-      subject(:finder)  { described_class.build(postal_code) }
+    describe '.build' do
+      subject(:finder) { described_class.build(postal_code) }
 
       it { should be_instance_of described_class }
       its(:service) { should be_a default_service.class }
+    end
+
+    describe '.find' do
+      it "is a shorthand for the instance method" do
+        finder = Finder.build('59022-120')
+        Finder.stub(:build).with('59022-120').and_return(finder)
+        expect(finder).to receive(:find)
+        Finder.find('59022-120')
+      end
     end
   end
 
