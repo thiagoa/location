@@ -22,4 +22,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "factory_girl_rails", '4.3.0'
   s.add_development_dependency "guard-rspec", '4.2.0'
   s.add_development_dependency "webmock", '1.16.1'
+  s.add_development_dependency "virtus", '1.0.1'
+  s.add_development_dependency "pry-rails", '0.3.2'
 end
