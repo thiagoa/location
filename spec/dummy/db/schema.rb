@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131210152621) do
+ActiveRecord::Schema.define(version: 20140112163948) do
 
   create_table "catalogs", force: true do |t|
     t.datetime "created_at"
@@ -35,6 +35,7 @@ ActiveRecord::Schema.define(version: 20131210152621) do
     t.string   "addressable_type"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "type"
   end
 
   add_index "location_addresses", ["addressable_type", "addressable_id"], name: "index_location_addressable_id_and_type"
