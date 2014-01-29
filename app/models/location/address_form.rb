@@ -29,13 +29,6 @@ module Location
     validate          :ensure_find_address
     before_save       :normalize_attributes!
 
-    attr_reader :normalized_attributes
-
-    def initialize(*args)
-      super
-      self.normalized_attributes = Location.configuration.normalized_fields
-    end
-
     def presence
       @presence || validate_presence_of(AddressForm.default_presence_attributes)
     end
@@ -47,7 +40,16 @@ module Location
 
     def normalized_attributes=(attributes)
       @normalized_attributes = Array(attributes)
+      ensure_valid_normalized_attributes!
+    end
 
+    def normalized_attributes
+      @normalized_attributes ||= Location.configuration.normalized_fields
+      ensure_valid_normalized_attributes!
+      @normalized_attributes
+    end
+
+    def ensure_valid_normalized_attributes!
       unless valid_normalized_attributes?
         raise ::StandardError.new, "Invalid normalizable attributes"
       end
@@ -68,8 +70,8 @@ module Location
     private
 
     def valid_normalized_attributes?
-      valid = self.class.normalizable_attributes.slice(0, normalized_attributes.count)
-      valid == normalized_attributes || valid.reverse == normalized_attributes
+      valid = self.class.normalizable_attributes.slice(0, @normalized_attributes.count)
+      valid == @normalized_attributes || valid.reverse == @normalized_attributes
     end
 
     def persist!
