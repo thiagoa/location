@@ -2,8 +2,7 @@ require 'spec_helper'
 
 module Location
   describe AddressForm do
-    before { Location.configuration.default_service = Services::NullService }
-    after(:each) { Location.configuration.default_service = Services::NullService }
+    before(:each) { Location.configuration.default_service = Services::NullService }
 
     describe "#persist!" do
       before do 
@@ -122,7 +121,7 @@ module Location
       describe "variable presence validations" do
         context "when no presence attributes are specified" do
           it "validates presence of default attributes" do
-            expect(build_address).to have_error_message("can't be blank")
+            expect(build_and_validate_address).to have_error_message("can't be blank")
               .on_fields([:postal_code, :address, :district, :city, :state])
           end
         end
@@ -130,7 +129,7 @@ module Location
         context "when one presence attribute is specified" do
           it "validates presence of one attribute" do
             AddressForm.new.attributes.keys.each do |field|
-              address = build_address { |address| address.validate_presence_of(field) }
+              address = build_and_validate_address { |address| address.validate_presence_of(field) }
               expect(address).to have_error_message("can't be blank").on_fields(field)
             end
           end
@@ -141,7 +140,7 @@ module Location
             AddressForm.new.attributes.keys.each_slice(2) do |first, second|
               break if second.nil?
 
-              address = build_address do |address|
+              address = build_and_validate_address do |address|
                 address.validate_presence_of([first, second])
               end
 
@@ -154,13 +153,13 @@ module Location
 
       describe "postal code webservice validation" do
         it "is valid with a valid postal code" do
-          address = build_valid_address(postal_code: '59022-120')
+          address = build_and_validate_valid_address(postal_code: '59022-120')
           expect(address.errors).to be_empty
         end
 
         it "is invalid with an invalid postal code" do
           Location.configuration.default_service = Services::FailedService
-          address = build_address(valid_attributes(postal_code: '111111111'))
+          address = build_and_validate_address(valid_attributes(postal_code: '111111111'))
           address.save
 
           expect(address).to have_error_message("Can't find address for 111111111")
@@ -186,12 +185,21 @@ module Location
     def build_address(attributes = {})
       address = AddressForm.new(attributes)
       yield address if block_given?
+      address
+    end
+
+    def build_and_validate_address(attributes = {}, &block)
+      address = build_address(attributes, &block)
       address.valid?
       address
     end
 
     def build_valid_address(extra = {}, &block)
       build_address(valid_attributes(extra, &block))
+    end
+
+    def build_and_validate_valid_address(extra = {}, &block)
+      build_and_validate_address(valid_attributes(extra, &block))
     end
   end
 end
