@@ -1,6 +1,6 @@
 require 'spec_helper'
 require 'location/finder'
-require 'location/services/errors'
+# require 'location/services/errors'
 require 'location/services/republica'
 
 module Location

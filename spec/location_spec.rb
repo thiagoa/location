@@ -6,6 +6,7 @@ module Location
     expect_it { to respond_to_option(:service_options).with_value({}) }
     expect_it { to respond_to_option(:default_service).with_value(Services::Republica) }
     expect_it { to respond_to_option(:concat_type_to_address).with_value(false) }
+    expect_it { to respond_to_option(:normalized_fields).with_value(%i{state city}) }
   end
 
   describe Location do
