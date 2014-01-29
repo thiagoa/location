@@ -24,4 +24,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "webmock", '1.16.1'
   s.add_development_dependency "virtus", '1.0.1'
   s.add_development_dependency "pry-rails", '0.3.2'
+  s.add_development_dependency "thor", '0.18.1'
 end

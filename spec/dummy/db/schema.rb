@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140112163948) do
+ActiveRecord::Schema.define(version: 20140129154734) do
 
   create_table "catalogs", force: true do |t|
     t.datetime "created_at"
@@ -46,6 +46,7 @@ ActiveRecord::Schema.define(version: 20140112163948) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "state_id"
+    t.boolean  "normalized", default: true
   end
 
   add_index "location_cities", ["state_id"], name: "index_location_cities_on_state_id"
@@ -55,6 +56,7 @@ ActiveRecord::Schema.define(version: 20140112163948) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "city_id"
+    t.boolean  "normalized", default: true
   end
 
   add_index "location_districts", ["city_id"], name: "index_location_districts_on_city_id"
@@ -64,6 +66,7 @@ ActiveRecord::Schema.define(version: 20140112163948) do
     t.string   "abbr"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "normalized", default: true
   end
 
 end

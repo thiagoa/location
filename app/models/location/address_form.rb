@@ -26,8 +26,8 @@ module Location
     end
 
     before_validation :build_finder
-    validate :ensure_find_address
-    before_save :normalize_attributes!
+    validate          :ensure_find_address
+    before_save       :normalize_attributes!
 
     attr_reader :normalized_attributes
 
@@ -74,15 +74,19 @@ module Location
 
     def persist!
       State.transaction(requires_new: true) do
-        State.send(persist_method(:state), name: state)
-          .cities.send(persist_method(:city), name: city)
-          .districts.send(persist_method(:district), name: district)
-          .addresses.create!(address_attributes)
+        state    = save_attribute(:state,    State)
+        city     = save_attribute(:city,     state.cities)
+        district = save_attribute(:district, city.districts)
+
+        district.addresses.create!(address_attributes)
       end
     end
 
-    def persist_method(attr)
-      attribute_normalized?(attr) ? "first_or_create!" : "create!"
+    def save_attribute(attr, klass)
+      attrs  = { name: send(attr), normalized: attribute_normalized?(attr) }
+      method = attrs[:normalized] ? "first_or_create!" : "create!"
+
+      klass.send(method, attrs)
     end
 
     def build_finder

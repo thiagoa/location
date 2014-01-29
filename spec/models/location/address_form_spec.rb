@@ -13,11 +13,10 @@ module Location
           district: 'Copacabana'
         }
         Location.configuration.default_service = Services::StubbedService
+        build_valid_address.save
       end
 
       it "saves address data to the database" do
-        build_valid_address.save
-
         address = Location::Address.joins(:district).joins(:city).joins(:state).
           select(%q{
             location_addresses.*,
@@ -37,72 +36,85 @@ module Location
         expect(address.longitude).to eq(0.12345)
       end
 
-      describe "normalizable attributes" do
-        context "valid normalizable attributes" do
-          it "normalizes state attribute" do
-            save_addresses_having_normalized_attributes([:state])
+      it "normalizes state and city by default" do
+        other_address = build_valid_address
+        other_address.save
 
-            expect(Location::State).to have(1).items
-            expect(Location::City).to have(2).items
-            expect(Location::District).to have(2).items
-            expect(Location::Address).to have(2).items
-          end
+        expect_normalized_attributes %i{state city}
+      end
+    end
 
-          it "normalizes state and city attributes" do
-            save_addresses_having_normalized_attributes([:state, :city])
+    describe "normalizable attributes" do
+      context "with no attributes" do
+        before { @normalized_fields = Location.configuration.normalized_fields }
+        after  { Location.configuration.normalized_fields = @normalized_fields }
 
-            expect(Location::State).to have(1).items
-            expect(Location::City).to have(1).items
-            expect(Location::District).to have(2).items
-            expect(Location::Address).to have(2).items
-          end
+        it "normalizes whatever is specified in the configuration" do
+          Location.configuration.normalized_fields = %i{state city district}
+          save_addresses
+          expect_normalized_attributes %i{state city district}
+        end
+      end
 
-          it "normalizes state, city and district attributes" do
-            save_addresses_having_normalized_attributes([:state, :city, :district])
-
-            expect(Location::State).to have(1).items
-            expect(Location::City).to have(1).items
-            expect(Location::District).to have(1).items
-            expect(Location::Address).to have(2).items
-          end
-
-          it "normalizes city and state by default" do
-            default_attributes = AddressForm.new.normalized_attributes
-            expect(default_attributes).to match_array([:city, :state])
-          end
+      context "with valid attributes" do
+        it "normalizes :state attribute" do
+          save_addresses_having_normalized_attributes %i{state}
+          expect_normalized_attributes %i{state}
         end
 
-        context "invalid normalizable attributes" do
-          it "doesn't normalize *only* state and district attributes" do
-            expect { AddressForm.new.normalized_attributes = [:state, :district] }
-            .to raise_error(::StandardError, 'Invalid normalizable attributes')
-          end
-
-          it "doesn't normalize *only* district attribute" do
-            expect { AddressForm.new.normalized_attributes = [:district] }
-            .to raise_error(::StandardError, 'Invalid normalizable attributes')
-          end
-          
-          it "doesn't normalize *only* city and district attributes" do
-            expect { AddressForm.new.normalized_attributes = [:city, :district] }
-            .to raise_error(::StandardError, 'Invalid normalizable attributes')
-          end
-
-          it "doesn't normalize *only* city attribute" do
-            expect { AddressForm.new.normalized_attributes = [:city] }
-            .to raise_error(::StandardError, 'Invalid normalizable attributes')
-          end
+        it "normalizes :state and :city attributes" do
+          save_addresses_having_normalized_attributes %i{state city}
+          expect_normalized_attributes %i{state city}
         end
 
-        def save_addresses_having_normalized_attributes(attrs)
-          address1 = AddressForm.new(valid_attributes)
-          address2 = AddressForm.new(valid_attributes(address: 'Alt.'))
-
-          [address1, address2].each do |address|
-            address.normalized_attributes = attrs
-            address.save
-          end
+        it "normalizes :state, :city and :district attributes" do
+          save_addresses_having_normalized_attributes %i{state city district}
+          expect_normalized_attributes %i{state city district}
         end
+      end
+
+      context "with invalid attributes" do
+        it "doesn't accept *only* state and district for normalization" do
+          expect { AddressForm.new.normalized_attributes = [:state, :district] }
+          .to raise_error(::StandardError, 'Invalid normalizable attributes')
+        end
+
+        it "doesn't accept *only* district for normalization" do
+          expect { AddressForm.new.normalized_attributes = [:district] }
+          .to raise_error(::StandardError, 'Invalid normalizable attributes')
+        end
+        
+        it "doesn't accept *only* city and district for normalization" do
+          expect { AddressForm.new.normalized_attributes = [:city, :district] }
+          .to raise_error(::StandardError, 'Invalid normalizable attributes')
+        end
+
+        it "doesn't accept *only* city for normalization" do
+          expect { AddressForm.new.normalized_attributes = [:city] }
+          .to raise_error(::StandardError, 'Invalid normalizable attributes')
+        end
+      end
+
+      def save_addresses
+        address1 = AddressForm.new(valid_attributes)
+        address2 = AddressForm.new(valid_attributes(address: 'Alt.'))
+
+        [address1, address2].each do |address|
+          yield address if block_given?
+          address.save
+        end
+      end
+
+      def save_addresses_having_normalized_attributes(attrs)
+        save_addresses { |address| address.normalized_attributes = attrs }
+      end
+    end
+
+    def expect_normalized_attributes(attrs)
+      %i{state city district}.each do |attr|
+        klass = "Location::#{attr.to_s.capitalize}".constantize
+        n = attrs.include?(attr) ? 1 : 2
+        expect(klass).to have(n).items
       end
     end
 
