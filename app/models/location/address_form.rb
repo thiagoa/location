@@ -87,7 +87,6 @@ module Location
     def save_attribute(attr, klass)
       attrs  = { name: send(attr), normalized: attribute_normalized?(attr) }
       method = attrs[:normalized] ? "first_or_create!" : "create!"
-
       klass.send(method, attrs)
     end
 

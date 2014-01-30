@@ -29,11 +29,29 @@ module Location
         expect(address.longitude).to eq(0.12345)
       end
 
-      it "normalizes state and city by default" do
-        other_address = build_valid_address
-        other_address.save
+      context "with the same normalization config for the models" do
+        it "normalizes state and city by default" do
+          other_address = build_valid_address
+          other_address.save
 
-        expect_normalized_attributes %i{state city}
+          expect_normalized_attributes %i{state city}
+        end
+      end
+
+      context "with different normalization config for the models" do
+        it "normalizes or duplicates the data per-model, as told to" do
+          other_address = build_valid_address
+          other_address.save
+
+          third_address = build_valid_address
+          third_address.normalized_attributes = [:state]
+          third_address.save
+
+          expect(Location::State).to have(1).items
+          expect(Location::City).to have(2).items
+          expect(Location::District).to have(3).items
+          expect(Location::Address).to have(3).items
+        end
       end
     end
 
