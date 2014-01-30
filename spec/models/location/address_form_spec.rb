@@ -16,21 +16,15 @@ module Location
       end
 
       it "saves address data to the database" do
-        address = Location::Address.joins(:district).joins(:city).joins(:state).
-          select(%q{
-            location_addresses.*,
-            location_districts.name as district_name,
-            location_cities.name as city_name,
-            location_states.name as state_name
-          }).first
+        address = Location::Address.full.first
 
         expect(address.postal_code).to eq('59022120')
         expect(address.address).to eq('R. Doutor José Bezerra')
         expect(address.number).to eq('1981')
         expect(address.complement).to eq('Bl. 13')
-        expect(address.district_name).to eq('Barro Vermelho')
-        expect(address.city_name).to eq('Rio de Janeiro')
-        expect(address.state_name).to eq('RJ')
+        expect(address.district.name).to eq('Barro Vermelho')
+        expect(address.city.name).to eq('Rio de Janeiro')
+        expect(address.state.name).to eq('RJ')
         expect(address.latitude).to eq(0.12345)
         expect(address.longitude).to eq(0.12345)
       end
