@@ -13,6 +13,19 @@ module Location
     validates :latitude, :longitude, numericality: true, allow_blank: true
 
     scope :full, ->{ eager_load(:district).eager_load(:city).eager_load(:state) }
+    default_scope { full }
+
+    def to_hash
+      {
+        postal_code: self.postal_code,
+        address:     self.address,
+        number:      self.number,
+        complement:  self.complement,
+        district:    self.district.try(:name),
+        city:        self.city.try(:name),
+        state:       self.state.try(:name)
+      }
+    end
 
     private
 
