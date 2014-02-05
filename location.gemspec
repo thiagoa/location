@@ -7,16 +7,18 @@ require "location/version"
 Gem::Specification.new do |s|
   s.name        = "location"
   s.version     = Location::VERSION
+  s.homepage    = 'http://github.com/thiagoa/location'
   s.authors     = ["Thiago A. Silva"]
   s.email       = ["thiagoaraujos@gmail.com"]
-  s.summary     = "Location related utilities: polymorphic address models, address autocomplete and maps"
-  s.description = "Location related utilities: polymorphic address models, address autocomplete and maps"
+  s.license     = 'MIT'
+  s.summary     = "Location and address related utilities"
+  s.description = "Polymorphic address models, address normalization, address web services, address autocomplete, maps"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", "~> 4.0.0"
+  s.add_dependency "rails", '~> 4.0', '>= 4.0.0'
 
-  s.add_development_dependency "sqlite3"
+  s.add_development_dependency "sqlite3", '1.3.8'
   s.add_development_dependency "rspec-rails", '2.14.0'
   s.add_development_dependency "capybara", '2.2.0'
   s.add_development_dependency "shoulda-matchers", '2.4.0'
