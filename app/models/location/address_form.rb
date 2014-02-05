@@ -29,6 +29,8 @@ module Location
     validate          :ensure_find_address
     before_save       :normalize_attributes!
 
+    attr_accessor :model
+
     def presence
       @presence || validate_presence_of(AddressForm.default_presence_attributes)
     end
@@ -76,16 +78,42 @@ module Location
 
     def persist!
       State.transaction(requires_new: true) do
-        state    = save_attribute(:state,    State)
-        city     = save_attribute(:city,     state.cities)
-        district = save_attribute(:district, city.districts)
-
-        district.addresses.create!(address_attributes)
+        if @model.try(:persisted?)
+          update
+        else
+          create
+        end
       end
     end
 
-    def save_attribute(attr, klass)
-      attrs  = { name: send(attr), normalized: attribute_normalized?(attr) }
+    def create
+      state    = create_attribute(:state, State)
+      city     = create_attribute(:city, state.cities)
+      district = create_attribute(:district, city.districts)
+
+      @model = district.addresses.create!(address_attributes)
+    end
+
+    def update
+      @model.update(address_attributes)
+
+      district = update_attribute(@model, :district)
+      city     = update_attribute(district, :city)
+      state    = update_attribute(city, :state)
+    end
+
+    def update_attribute(parent, attr)
+      child = parent.send(attr) || parent.send("build_#{attr.to_s}")
+      child.update(attributes_for(attr))
+      child
+    end
+
+    def attributes_for(attr)
+      { name: send(attr), normalized: attribute_normalized?(attr) }
+    end
+
+    def create_attribute(attr, klass)
+      attrs  = attributes_for(attr)
       method = attrs[:normalized] ? "first_or_create!" : "create!"
       klass.send(method, attrs)
     end

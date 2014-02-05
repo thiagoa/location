@@ -12,7 +12,9 @@ module Location
           district: 'Copacabana'
         }
         Location.configuration.default_service = Services::StubbedService
-        build_valid_address.save
+
+        @valid_address = build_valid_address
+        @valid_address.save
       end
 
       it "saves address data to the database" do
@@ -51,6 +53,24 @@ module Location
           expect(Location::City).to have(2).items
           expect(Location::District).to have(3).items
           expect(Location::Address).to have(3).items
+        end
+      end
+
+      context "form update" do
+        it "updates the underlying models" do
+          model         = @valid_address.model
+          address       = build_valid_address
+          address.model = model
+
+          address.address = 'Nicaragua Street'
+          address.number  = '54'
+          address.save
+
+          last_address = Location::Address.last
+
+          expect(last_address.id).to eq model.id
+          expect(last_address.address).to eq 'Nicaragua Street'
+          expect(last_address.number).to eq '54'
         end
       end
     end
