@@ -99,7 +99,8 @@ module Location
 
       district = update_attribute(@model, :district)
       city     = update_attribute(district, :city)
-      state    = update_attribute(city, :state)
+
+      update_attribute(city, :state)
     end
 
     def update_attribute(parent, attr)

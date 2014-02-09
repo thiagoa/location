@@ -71,7 +71,7 @@ module Location
         it 'raises an Error' do
           stub_http_fetch('1111111')
           expect { subject.fetch('1111111', address) }.
-            to raise_error Services::Error, %{Couldn't find address for 1111111}
+            to raise_error Services::Error, "Couldn't find address for 1111111"
         end
 
         after { expect(@stub).to have_been_requested }
@@ -84,7 +84,7 @@ module Location
             to_return(status: 404)
 
           expect { subject.fetch('59022-120', address) }.
-            to raise_error Services::Error, %{Got response 404 for 59022-120}
+            to raise_error Services::Error, 'Got response 404 for 59022-120'
         end
       end
 
@@ -95,7 +95,7 @@ module Location
             to_raise(Net::HTTPBadResponse)
 
           expect { subject.fetch('59022-120', address) }.
-            to raise_error Services::Error, %{Got a bad response}
+            to raise_error Services::Error, 'Got a bad response'
         end
       end
     end
