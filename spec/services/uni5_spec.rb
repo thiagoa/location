@@ -98,6 +98,17 @@ module Location
             to raise_error Services::Error, 'Got a bad response'
         end
       end
+
+      context 'when it returns a socket error' do
+        it 'raises an Error' do
+          stub_request(:get, "http://webservice.uni5.net/web_cep.php").
+            with(query: stub_valid_options).
+            to_raise(SocketError)
+
+          expect { subject.fetch('59022-120', address) }.
+            to raise_error Services::Error, 'Got a socket error'
+        end
+      end
     end
 
     describe 'real fetch', external: true do

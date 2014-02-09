@@ -40,6 +40,8 @@ module Location
         yield eval_result(response.body)
       rescue Net::HTTPBadResponse => e
         raise Error.new, 'Got a bad response'
+      rescue SocketError
+        raise Error.new, 'Got a socket error'
       end
 
       def eval_result(json)
