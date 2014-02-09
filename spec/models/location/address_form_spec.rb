@@ -154,7 +154,7 @@ module Location
         context "when no presence attributes are specified" do
           it "validates presence of default attributes" do
             expect(build_and_validate_address).to have_error_message("can't be blank")
-              .on_fields([:postal_code, :address, :district, :city, :state])
+              .on_fields([:postal_code, :address, :district])
           end
         end
 

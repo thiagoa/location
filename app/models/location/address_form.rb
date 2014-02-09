@@ -7,7 +7,7 @@ module Location
     end
 
     def self.default_presence_attributes
-      %i{postal_code address district city state}
+      %i{postal_code address district}
     end
 
     def self.string_attributes
