@@ -47,6 +47,18 @@ module Location
         concat_type_to_address
       end
 
+      def to_hash(options = {})
+        attributes = instance_variables.map do |k|
+          k.to_s.gsub(/^@/, '').to_sym
+        end
+
+        only = Array(options[:only] || attributes).map!(&:to_sym)
+
+        attributes.each_with_object({}) do |k, a|
+          a[k] = send(k) if only.include?(k)
+        end
+      end
+
       private
 
       def concat_type_to_address
