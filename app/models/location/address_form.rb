@@ -1,6 +1,6 @@
 module Location
   class AddressForm
-    include Form
+    include SuperForm
 
     def self.normalizable_attributes
       %i{state city district}
@@ -18,8 +18,8 @@ module Location
       %i{latitude longitude}
     end
 
-    string_attributes.each { |attr| attribute attr, String }
-    float_attributes.each  { |attr| attribute attr, Float  }
+    string_attributes.each { |attr| field attr, Field::Text }
+    float_attributes.each  { |attr| field attr, Field::Float }
 
     (string_attributes + float_attributes).each do |attr|
       validates attr, presence: true, if: ->(a){ a.presence[attr] }
