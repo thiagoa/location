@@ -3,10 +3,7 @@ require 'super_form'
 module Location
   class AddressForm
     include SuperForm
-
-    def self.normalizable_attributes
-      %i{state city district}
-    end
+    include AddressNormalizable
 
     def self.default_presence_attributes
       %i{postal_code address district}
@@ -27,10 +24,6 @@ module Location
       validates attr, presence: true, if: ->(a){ a.presence[attr] }
     end
 
-    before_validation :build_finder
-    validate          :ensure_find_address
-    before_save       :normalize_attributes!
-
     attr_accessor :model
 
     def presence
@@ -42,27 +35,6 @@ module Location
       values_for_attributes(attributes)
     end
 
-    def normalized_attributes=(attributes)
-      @normalized_attributes = Array(attributes)
-      ensure_valid_normalized_attributes!
-    end
-
-    def normalized_attributes
-      @normalized_attributes ||= Location.configuration.normalized_fields
-      ensure_valid_normalized_attributes!
-      @normalized_attributes
-    end
-
-    def ensure_valid_normalized_attributes!
-      unless valid_normalized_attributes?
-        raise ::StandardError.new, "Invalid normalizable attributes"
-      end
-    end
-
-    def attribute_normalized?(attr)
-      normalized_attributes.include?(attr)
-    end
-
     def validate_presence_of(attributes)
       attributes = Array(attributes)
       @presence = self.attributes.keys.inject({}) do |hash, attr|
@@ -72,11 +44,6 @@ module Location
     end
 
     private
-
-    def valid_normalized_attributes?
-      valid = self.class.normalizable_attributes.slice(0, @normalized_attributes.count)
-      valid == @normalized_attributes || valid.reverse == @normalized_attributes
-    end
 
     def persist!
       State.transaction(requires_new: true) do
@@ -121,6 +88,22 @@ module Location
       klass.send(method, attrs)
     end
 
+    def values_for_attributes(attributes)
+      attributes.each_with_object({}) do |attr, hash|
+        hash[attr] = send(attr)
+      end
+    end
+  end
+
+  module AddressNormalizable
+    def self.included(base)
+      base.extend ClassMethods
+
+      base.before_validation :build_finder
+      base.validate :ensure_find_address
+      base.before_save :normalize_attributes!
+    end
+
     def build_finder
       @finder = Finder.build(postal_code)
     end
@@ -139,9 +122,37 @@ module Location
       end
     end
 
-    def values_for_attributes(attributes)
-      attributes.each_with_object({}) do |attr, hash|
-        hash[attr] = send(attr)
+    def normalized_attributes=(attributes)
+      @normalized_attributes = Array(attributes)
+      ensure_valid_normalized_attributes!
+    end
+
+    def normalized_attributes
+      @normalized_attributes ||= Location.configuration.normalized_fields
+      ensure_valid_normalized_attributes!
+      @normalized_attributes
+    end
+
+    def ensure_valid_normalized_attributes!
+      unless valid_normalized_attributes?
+        raise ::StandardError.new, "Invalid normalizable attributes"
+      end
+    end
+
+    def attribute_normalized?(attr)
+      normalized_attributes.include?(attr)
+    end
+
+    private
+
+    def valid_normalized_attributes?
+      valid = self.class.normalizable_attributes.slice(0, @normalized_attributes.count)
+      valid == @normalized_attributes || valid.reverse == @normalized_attributes
+    end
+
+    module ClassMethods
+      def normalizable_attributes
+        %i{state city district}
       end
     end
   end
