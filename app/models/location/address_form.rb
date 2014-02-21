@@ -1,3 +1,5 @@
+require 'super_form'
+
 module Location
   class AddressForm
     include SuperForm
