@@ -1,67 +1,91 @@
 require 'super_form'
 
 module Location
-  module AddressNormalizable
-    def self.included(base)
-      base.extend ClassMethods
-
-      base.before_validation :build_finder
-      base.validate :ensure_find_address
-      base.before_save :normalize_attributes!
+  class AddressNormalizer
+    def self.normalizable
+      %i{state city district}
     end
 
-    def build_finder
+    attr_reader :finder
+
+    def initialize(postal_code, model)
       @finder = Finder.build(postal_code)
+      @model = model
     end
 
-    def ensure_find_address
-      @finder.find do |f|
-        unless f.successful?
-          errors.add :postal_code, %{Can't find address for #{postal_code}}
+    def finder_successful?
+      trigger_find
+      @finder.successful?
+    end
+
+    def normalize!
+      if finder_successful?
+        normalizable.each do |a|
+          @model.send("#{a}=", @finder.address.send(a))
         end
       end
     end
 
-    def normalize_attributes!
-      normalized_attributes.each do |f|
-        send("#{f}=", @finder.address.send(f))
-      end
+    def normalizable=(attributes)
+      @normalizable = Array(attributes)
+      ensure_valid_normalizable!
     end
 
-    def normalized_attributes=(attributes)
-      @normalized_attributes = Array(attributes)
-      ensure_valid_normalized_attributes!
+    def normalizable
+      @normalizable ||= Location.configuration.normalized_fields
+      ensure_valid_normalizable!
+      @normalizable
     end
 
-    def normalized_attributes
-      @normalized_attributes ||= Location.configuration.normalized_fields
-      ensure_valid_normalized_attributes!
-      @normalized_attributes
-    end
-
-    def ensure_valid_normalized_attributes!
-      unless valid_normalized_attributes?
-        raise ::StandardError.new, "Invalid normalizable attributes"
-      end
-    end
-
-    def attribute_normalized?(attr)
-      normalized_attributes.include?(attr)
+    def normalizable?(attribute)
+      normalizable.include?(attribute)
     end
 
     private
 
-    def valid_normalized_attributes?
-      valid = self.class.normalizable_attributes.slice(0, @normalized_attributes.count)
-      valid == @normalized_attributes || valid.reverse == @normalized_attributes
+    def trigger_find
+      return if @ok
+      @ok = @finder.find
     end
 
-    module ClassMethods
-      def normalizable_attributes
-        %i{state city district}
+    def ensure_valid_normalizable!
+      unless valid_normalizable?
+        raise ::StandardError.new, "Invalid normalizable attributes"
       end
     end
+
+    def valid_normalizable?
+      valid = self.class.normalizable.slice(0, @normalizable.count)
+      valid == @normalizable || valid.reverse == @normalizable
+    end
   end
+
+  module AddressNormalizable
+    def self.included(base)
+      base.before_validation :build_address_normalizer
+      base.validate :ensure_find_address
+      base.before_save :normalize_address_attributes!
+    end
+
+    def build_address_normalizer
+      @normalizer ||= AddressNormalizer.new(postal_code, self)
+    end
+
+    def ensure_find_address
+      unless @normalizer.finder_successful?
+        errors.add :postal_code, %{Can't find address for #{postal_code}}
+      end
+    end
+
+    def normalize_address_attributes!
+      @normalizer.normalize!
+    end
+
+    def normalizable_address_attributes=(attributes)
+      build_address_normalizer.normalizable = attributes
+    end
+  end
+
   class AddressForm
     include SuperForm
     include AddressNormalizable
@@ -140,7 +164,7 @@ module Location
     end
 
     def attributes_for(attr)
-      { name: send(attr), normalized: attribute_normalized?(attr) }
+      { name: send(attr), normalized: @normalizer.normalizable?(attr) }
     end
 
     def create_attribute(attr, klass)

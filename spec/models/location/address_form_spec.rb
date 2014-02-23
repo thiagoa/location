@@ -46,7 +46,7 @@ module Location
           other_address.save
 
           third_address = build_valid_address
-          third_address.normalized_attributes = [:state]
+          third_address.normalizable_address_attributes = [:state]
           third_address.save
 
           expect(Location::State).to have(1).items
@@ -106,22 +106,22 @@ module Location
 
       context "with invalid attributes" do
         it "doesn't accept *only* state and district for normalization" do
-          expect { AddressForm.new.normalized_attributes = [:state, :district] }
+          expect { AddressForm.new.normalizable_address_attributes = [:state, :district] }
           .to raise_error(::StandardError, 'Invalid normalizable attributes')
         end
 
         it "doesn't accept *only* district for normalization" do
-          expect { AddressForm.new.normalized_attributes = [:district] }
+          expect { AddressForm.new.normalizable_address_attributes = [:district] }
           .to raise_error(::StandardError, 'Invalid normalizable attributes')
         end
 
         it "doesn't accept *only* city and district for normalization" do
-          expect { AddressForm.new.normalized_attributes = [:city, :district] }
+          expect { AddressForm.new.normalizable_address_attributes = [:city, :district] }
           .to raise_error(::StandardError, 'Invalid normalizable attributes')
         end
 
         it "doesn't accept *only* city for normalization" do
-          expect { AddressForm.new.normalized_attributes = [:city] }
+          expect { AddressForm.new.normalizable_address_attributes = [:city] }
           .to raise_error(::StandardError, 'Invalid normalizable attributes')
         end
       end
@@ -137,7 +137,9 @@ module Location
       end
 
       def save_addresses_having_normalized_attributes(attrs)
-        save_addresses { |address| address.normalized_attributes = attrs }
+        save_addresses do |address|
+          address.normalizable_address_attributes = attrs
+        end
       end
     end
 
