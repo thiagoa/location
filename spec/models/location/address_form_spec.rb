@@ -5,7 +5,7 @@ module Location
     before(:each) { Location.configuration.default_service = Services::NullService }
 
     describe "#persist!" do
-      before do 
+      before do
         Services::StubbedService.attributes = {
           city:     'Rio de Janeiro',
           state:    'RJ',
@@ -21,7 +21,7 @@ module Location
         address = Location::Address.full.first
 
         expect(address.postal_code).to eq('59022120')
-        expect(address.address).to eq('R. Doutor José Bezerra')
+        expect(address.street).to eq('R. Doutor José Bezerra')
         expect(address.number).to eq('1981')
         expect(address.complement).to eq('Bl. 13')
         expect(address.district.name).to eq('Barro Vermelho')
@@ -62,14 +62,14 @@ module Location
           address       = build_valid_address
           address.model = model
 
-          address.address = 'Nicaragua Street'
-          address.number  = '54'
+          address.street = 'Nicaragua Street'
+          address.number = '54'
           address.save
 
           last_address = Location::Address.last
 
           expect(last_address.id).to eq model.id
-          expect(last_address.address).to eq 'Nicaragua Street'
+          expect(last_address.street).to eq 'Nicaragua Street'
           expect(last_address.number).to eq '54'
         end
       end
@@ -114,7 +114,7 @@ module Location
           expect { AddressForm.new.normalized_attributes = [:district] }
           .to raise_error(::StandardError, 'Invalid normalizable attributes')
         end
-        
+
         it "doesn't accept *only* city and district for normalization" do
           expect { AddressForm.new.normalized_attributes = [:city, :district] }
           .to raise_error(::StandardError, 'Invalid normalizable attributes')
@@ -128,7 +128,7 @@ module Location
 
       def save_addresses
         address1 = AddressForm.new(valid_attributes)
-        address2 = AddressForm.new(valid_attributes(address: 'Alt.'))
+        address2 = AddressForm.new(valid_attributes(street: 'Alt.'))
 
         [address1, address2].each do |address|
           yield address if block_given?
@@ -154,7 +154,7 @@ module Location
         context "when no presence attributes are specified" do
           it "validates presence of default attributes" do
             expect(build_and_validate_address).to have_error_message("can't be blank")
-              .on_fields([:postal_code, :address, :district])
+              .on_fields([:postal_code, :street, :district])
           end
         end
 
@@ -203,7 +203,7 @@ module Location
     def valid_attributes(extra = {})
       {
         postal_code: '59022-120',
-        address:     'R. Doutor José Bezerra',
+        street:      'R. Doutor José Bezerra',
         number:      '1981',
         complement:  'Bl. 13',
         district:    'Barro Vermelho',

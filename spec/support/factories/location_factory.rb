@@ -17,9 +17,9 @@ FactoryGirl.define do
 
   factory :address, class: Location::Address do
     postal_code
-    sequence(:address) { |n| "Street #{n}" }
+    sequence(:street) { |n| "Street #{n}" }
     sequence(:number)
     sequence(:complement) { |n| "Subway #{n}" }
-    district 
+    district
   end
 end

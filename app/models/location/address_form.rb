@@ -67,11 +67,11 @@ module Location
     include AddressNormalizable
 
     def self.default_presence_attributes
-      %i{postal_code address district}
+      %i{postal_code street district}
     end
 
     def self.string_attributes
-      %i{postal_code address number complement district city state}
+      %i{postal_code street number complement district city state}
     end
 
     def self.float_attributes
@@ -92,7 +92,7 @@ module Location
     end
 
     def address_attributes
-      attributes = %w{postal_code address number complement latitude longitude}
+      attributes = %w{postal_code street number complement latitude longitude}
       values_for_attributes(attributes)
     end
 

@@ -7,7 +7,7 @@ module Location
 
     before_save :format_postal_code
 
-    validates :address, length: { maximum: 150 }
+    validates :street, length: { maximum: 150 }
     validates :number, length: { maximum: 20 }
     validates :complement, length: { maximum: 40 }
     validates :latitude, :longitude, numericality: true, allow_blank: true
@@ -18,7 +18,7 @@ module Location
     def to_hash
       {
         postal_code: self.postal_code,
-        address:     self.address,
+        street:      self.street,
         number:      self.number,
         complement:  self.complement,
         district:    self.district.try(:name),

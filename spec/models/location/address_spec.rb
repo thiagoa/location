@@ -6,7 +6,7 @@ module Location
     it { should have_one(:city).through(:district) }
     it { should have_one(:state).through(:city) }
 
-    it { should ensure_length_of(:address).is_at_most(150) }
+    it { should ensure_length_of(:street).is_at_most(150) }
     it { should ensure_length_of(:number).is_at_most(20) }
     it { should ensure_length_of(:complement).is_at_most(40) }
     it { should validate_numericality_of(:latitude) }
