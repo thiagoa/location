@@ -6,11 +6,12 @@ module Location
 
     describe "#persist!" do
       before do
-        Services::StubbedService.attributes = {
+        Services::StubbedService.set_result('59022-120', {
           city:     'Rio de Janeiro',
           state:    'RJ',
           district: 'Copacabana'
-        }
+        })
+
         Location.configuration.default_service = Services::StubbedService
 
         @valid_address = build_valid_address

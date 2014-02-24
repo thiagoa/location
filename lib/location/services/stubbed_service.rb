@@ -1,23 +1,20 @@
 module Location
   module Services
     class StubbedService
-      class << self
-        attr_writer :attributes
+      def self.attributes
+        @attributes ||= {}
       end
 
-      def self.attributes
-        @attributes || {
-          address:    'R. Barata Ribeiro',
-          number:     '1981',
-          complement: '',
-          district:   'Copacabana',
-          city:       'Rio de Janeiro',
-          state:      'RJ'
-        }
+      def self.set_result(postal_code, attributes)
+        self.attributes[postal_code] ||= attributes
+      end
+
+      def self.attributes_for(postal_code)
+        self.attributes[postal_code] || {}
       end
 
       def fetch(postal_code, address)
-        StubbedService.attributes.each do |k, v|
+        self.class.attributes_for(postal_code).each do |k, v|
           address.send("#{k}=", v)
         end
       end
