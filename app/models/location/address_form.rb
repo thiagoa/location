@@ -9,19 +9,16 @@ module Location
     attr_reader :finder
 
     def initialize(postal_code, model)
-      @finder = Finder.build(postal_code)
+      @postal_code = postal_code
       @model = model
     end
 
-    def finder_successful?
-      trigger_find
-      @finder.successful?
-    end
-
     def normalize!
-      if finder_successful?
+      Finder.find(@postal_code) do |f|
+        return false unless f.successful?
+
         normalizable.each do |a|
-          @model.send("#{a}=", @finder.address.send(a))
+          @model.send("#{a}=", f.address.send(a))
         end
       end
     end
@@ -34,6 +31,7 @@ module Location
     def normalizable
       @normalizable ||= Location.configuration.normalized_fields
       ensure_valid_normalizable!
+
       @normalizable
     end
 
@@ -42,11 +40,6 @@ module Location
     end
 
     private
-
-    def trigger_find
-      return if @ok
-      @ok = @finder.find
-    end
 
     def ensure_valid_normalizable!
       unless valid_normalizable?
@@ -62,8 +55,6 @@ module Location
 
   module AddressNormalizable
     def self.included(base)
-      base.before_validation :build_address_normalizer
-      base.validate :ensure_find_address
       base.before_save :normalize_address_attributes!
     end
 
@@ -71,14 +62,11 @@ module Location
       @normalizer ||= AddressNormalizer.new(postal_code, self)
     end
 
-    def ensure_find_address
-      unless @normalizer.finder_successful?
-        errors.add :postal_code, %{Can't find address for #{postal_code}}
-      end
-    end
-
     def normalize_address_attributes!
-      @normalizer.normalize!
+      unless build_address_normalizer.normalize!
+        errors.add :postal_code, %{Can't find address for #{postal_code}}
+        false
+      end
     end
 
     def normalizable_address_attributes=(attributes)
@@ -122,6 +110,7 @@ module Location
 
     def validate_presence_of(attributes)
       attributes = Array(attributes)
+
       @presence = self.attributes.keys.inject({}) do |hash, attr|
         hash[attr] = attributes.include?(attr)
         hash

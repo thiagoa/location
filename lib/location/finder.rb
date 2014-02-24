@@ -13,8 +13,8 @@ module Location
 
     def initialize(postal_code, service)
       @postal_code = postal_code
-      @service     = service
-      @address     = Address.new
+      @service = service
+      @address = Address.new
     end
 
     def find
@@ -66,7 +66,7 @@ module Location
       end
 
       def concat_type_to_address?
-        Location.configuration.concat_type_to_address && 
+        Location.configuration.concat_type_to_address &&
           !type.nil? && !address.nil?
       end
 
