@@ -19,13 +19,13 @@ module Location
   class Configuration
     attr_accessor :default_service
     attr_accessor :service_options
-    attr_accessor :concat_type_to_address
+    attr_accessor :concat_type_to_street
     attr_accessor :normalized_fields
 
     def initialize
       @default_service = Services::Republica
       @service_options = {}
-      @concat_type_to_address = false
+      @concat_type_to_street = false
       @normalized_fields = %i{state city}
     end
   end

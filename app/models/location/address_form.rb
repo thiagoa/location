@@ -16,7 +16,8 @@ module Location
         return false unless f.successful?
 
         normalizable.each do |a|
-          @model.send("#{a}=", f.address.send(a))
+          value = f.address.send(a)
+          @model.send("#{a}=", value) unless value.nil?
         end
       end
     end
@@ -53,22 +54,25 @@ module Location
 
   module AddressNormalizable
     def self.included(base)
-      base.before_save :normalize_address_attributes!
-    end
-
-    def build_address_normalizer
-      @normalizer ||= AddressNormalizer.new(postal_code, self)
-    end
-
-    def normalize_address_attributes!
-      unless build_address_normalizer.normalize!
-        errors.add :postal_code, %{Can't find address for #{postal_code}}
-        false
-      end
+      base.before_save :normalize_attributes!
     end
 
     def normalizable_address_attributes=(attributes)
-      build_address_normalizer.normalizable = attributes
+      current_normalizer.normalizable = attributes
+    end
+
+    private
+
+    def current_normalizer
+      @normalizers ||= {}
+      @normalizers[postal_code] ||= AddressNormalizer.new(postal_code, self)
+    end
+
+    def normalize_attributes!
+      unless current_normalizer.normalize!
+        errors.add :postal_code, %{Can't find address for #{postal_code}}
+        false
+      end
     end
   end
 
@@ -129,8 +133,8 @@ module Location
 
     def create
       state    = create_attribute(:state, State)
-      city     = create_attribute(:city, state.cities)
-      district = create_attribute(:district, city.districts)
+      city     = create_attribute(:city, state.cities.build)
+      district = create_attribute(:district, city.districts.build)
 
       @model = district.addresses.create!(address_attributes)
     end
@@ -151,13 +155,14 @@ module Location
     end
 
     def attributes_for(attr)
-      { name: send(attr), normalized: @normalizer.normalizable?(attr) }
+      { name: send(attr), normalized: current_normalizer.normalizable?(attr) }
     end
 
-    def create_attribute(attr, klass)
-      attrs  = attributes_for(attr)
-      method = attrs[:normalized] ? "first_or_create!" : "create!"
-      klass.send(method, attrs)
+    def create_attribute(attribute, object)
+      object = object.new if object.is_a?(Class)
+      attributes = attributes_for(attribute)
+
+      object.find_or_save!(attributes)
     end
 
     def values_for_attributes(attributes)

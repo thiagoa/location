@@ -16,7 +16,7 @@ module Location
 
     describe 'attributes' do
       subject(:finder) do
-        described_class.new(postal_code, default_service) 
+        described_class.new(postal_code, default_service)
       end
 
       its(:address) { should be_a Finder::Address }
@@ -99,38 +99,38 @@ module Location
   end
 
   describe Finder::Address do
-    %w{postal_code type address number complement district city state}.each do |field|
+    %w{postal_code type street number complement district city state}.each do |field|
       expect_it { to respond_to_option field }
     end
 
-    context "with concat_type_to_address enabled" do
-      before { Location.configuration.concat_type_to_address = true }
+    context "with concat_type_to_street enabled" do
+      before { Location.configuration.concat_type_to_street = true }
 
       it "concats when address is specified after type" do
-        subject.type    = 'Rua'
-        subject.address = 'Walter Figueiredo'
+        subject.type = 'Rua'
+        subject.street = 'Walter Figueiredo'
       end
 
       it "concats when address is specified before type" do
-        subject.address = 'Walter Figueiredo'
-        subject.type    = 'Rua'
+        subject.street = 'Walter Figueiredo'
+        subject.type = 'Rua'
       end
 
       after(:each) {
         expect(subject.type).to eq 'Rua'
-        expect(subject.address).to eq 'Rua Walter Figueiredo'
+        expect(subject.street).to eq 'Rua Walter Figueiredo'
       }
     end
 
-    context "with concat_type_to_address disabled" do
-      before { Location.configuration.concat_type_to_address = false }
+    context "with concat_type_to_street disabled" do
+      before { Location.configuration.concat_type_to_street = false }
 
       it "does not concat" do
-        subject.type    = 'Rua'
-        subject.address = 'Walter Figueiredo'
+        subject.type = 'Rua'
+        subject.street = 'Walter Figueiredo'
 
         expect(subject.type).to eq 'Rua'
-        expect(subject.address).to eq 'Walter Figueiredo'
+        expect(subject.street).to eq 'Walter Figueiredo'
       end
     end
   end

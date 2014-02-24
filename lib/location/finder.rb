@@ -34,17 +34,17 @@ module Location
 
     class Address
       attr_accessor :type, :postal_code
-      attr_accessor :address, :number, :complement
+      attr_accessor :street, :number, :complement
       attr_accessor :district, :city, :state
 
       def type=(type)
         @type = type
-        concat_type_to_address
+        concat_type_to_street
       end
 
-      def address=(address)
-        @address = address
-        concat_type_to_address
+      def street=(street)
+        @street = street
+        concat_type_to_street
       end
 
       def to_hash(options = {})
@@ -61,17 +61,17 @@ module Location
 
       private
 
-      def concat_type_to_address
-        concat_type_to_address! if concat_type_to_address?
+      def concat_type_to_street
+        concat_type_to_street! if concat_type_to_street?
       end
 
-      def concat_type_to_address?
-        Location.configuration.concat_type_to_address &&
-          !type.nil? && !address.nil?
+      def concat_type_to_street?
+        Location.configuration.concat_type_to_street &&
+          !type.nil? && !street.nil?
       end
 
-      def concat_type_to_address!
-        @address = "#{type} #{address}"
+      def concat_type_to_street!
+        @street = "#{type} #{street}"
       end
     end
   end

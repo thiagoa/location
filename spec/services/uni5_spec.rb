@@ -5,7 +5,7 @@ require 'webmock/rspec'
 
 module Location
   describe Services::Uni5 do
-    before { Location.configuration.concat_type_to_address = false }
+    before { Location.configuration.concat_type_to_street = false }
 
     let(:cep)      { '59022-120' }
     let!(:address) { Finder::Address.new }
@@ -17,7 +17,7 @@ module Location
         subject.stub(:http_request)
         subject.fetch(cep, address)
         options = subject.options
-        
+
         expect([options[:cep], options[:formato]]).to eq [cep, 'json']
       end
 
@@ -61,7 +61,7 @@ module Location
 
         it "feeds the address object" do
           address.tap do |a|
-            expect([a.state, a.city, a.district, a.type, a.address]).
+            expect([a.state, a.city, a.district, a.type, a.street]).
               to eq ['RN', 'Natal', 'Barro Vermelho', 'Rua', 'Doutor José Bezerra']
           end
         end
@@ -117,7 +117,7 @@ module Location
         subject.fetch(cep, address)
 
         address.tap do |a|
-          expect([a.state, a.city, a.district, a.type, a.address]).to eq \
+          expect([a.state, a.city, a.district, a.type, a.street]).to eq \
             ['RN', 'Natal', 'Barro Vermelho', 'Rua', 'Doutor José Bezerra']
         end
       end

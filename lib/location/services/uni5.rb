@@ -15,7 +15,7 @@ module Location
           address.city     = res['cidade']
           address.district = res['bairro']
           address.type     = res['tipo_logradouro']
-          address.address  = res['logradouro']
+          address.street   = res['logradouro']
         end
       end
 
@@ -38,7 +38,7 @@ module Location
         end
 
         yield eval_result(response.body)
-      rescue Net::HTTPBadResponse => e
+      rescue Net::HTTPBadResponse
         raise Error.new, 'Got a bad response'
       rescue SocketError
         raise Error.new, 'Got a socket error'
