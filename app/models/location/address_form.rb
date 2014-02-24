@@ -6,8 +6,6 @@ module Location
       %i{state city district}
     end
 
-    attr_reader :finder
-
     def initialize(postal_code, model)
       @postal_code = postal_code
       @model = model
