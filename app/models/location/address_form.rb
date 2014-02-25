@@ -96,7 +96,7 @@ module Location
     private
 
     def create
-      state    = create_attribute(:state, State)
+      state    = create_attribute(:state, State.new)
       city     = create_attribute(:city, state.cities.build)
       district = create_attribute(:district, city.districts.build)
 
@@ -105,9 +105,7 @@ module Location
     end
 
     def create_attribute(attribute, object)
-      object = object.new if object.is_a?(Class)
       attributes = @normalizer.parameterize_attribute(attribute)
-
       object.find_or_save!(attributes)
     end
 
