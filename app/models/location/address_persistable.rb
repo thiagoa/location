@@ -16,8 +16,7 @@ module Location
     end
 
     def address_persister
-      @address_persister
-      #@address_persister ||= AddressPersister.new(address_normalizer, address)
+      @address_persister ||= AddressPersister.new(address_normalizer, address)
     end
 
     def persist_address!

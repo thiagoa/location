@@ -1,5 +1,7 @@
 module Location
   class AddressPersister
+    attr_reader :normalizer, :address
+
     def initialize(normalizer, address)
       @normalizer = normalizer
       @address = address

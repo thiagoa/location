@@ -12,6 +12,27 @@ module Location
       Location.configuration.default_service = @default_service
     end
 
+    describe 'address persister' do
+      context 'when not explicitly assigned' do
+        it 'returns an address_persister object' do
+          model = grab_model_with_persister
+          expect(model.address_persister).to be_instance_of AddressPersister
+        end
+
+        it 'has the right address normalizer' do
+          model = grab_model_with_persister
+          address_persister = model.address_persister
+          expect(address_persister.normalizer).to eq model.address_normalizer
+        end
+
+        it 'has the right model' do
+          model = grab_model_with_persister
+          address_persister = model.address_persister
+          expect(address_persister.address).to eq model.address
+        end
+      end
+    end
+
     context 'when saving a model' do
       it 'calls persist! on address_persister' do
         model = grab_model
