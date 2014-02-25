@@ -46,7 +46,7 @@ module Location
     private
 
     def persist!
-      AddressPersister.new(current_normalizer, address).persist!
+      AddressPersister.new(address_normalizer, address).persist!
     end
   end
 end
