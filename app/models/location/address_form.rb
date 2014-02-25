@@ -47,7 +47,11 @@ module Location
     end
 
     def attributes
-      @model.address_attributes
+      attributes = %w{postal_code street number complement latitude longitude}
+
+      attributes.each_with_object({}) do |attr, hash|
+        hash[attr] = @model.send(attr)
+      end
     end
 
     def parameterize_attribute(attribute)
@@ -175,11 +179,6 @@ module Location
       @presence || validate_presence_of(AddressForm.default_presence_attributes)
     end
 
-    def address_attributes
-      attributes = %w{postal_code street number complement latitude longitude}
-      values_for_attributes(attributes)
-    end
-
     def validate_presence_of(attributes)
       attributes = Array(attributes)
 
@@ -193,12 +192,6 @@ module Location
 
     def persist!
       AddressPersister.new(current_normalizer, address).persist!
-    end
-
-    def values_for_attributes(attributes)
-      attributes.each_with_object({}) do |attr, hash|
-        hash[attr] = send(attr)
-      end
     end
   end
 end
