@@ -30,4 +30,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "pry-rails", '0.3.2'
   s.add_development_dependency "thor", '0.18.1'
   s.add_development_dependency "simplecov", '0.8.2'
+  s.add_development_dependency "activemodel", '4.0.3'
 end
