@@ -214,6 +214,10 @@ module Location
     end
 
     describe "validations" do
+      it 'uses AddressValidations module' do
+        expect(build_address.class.ancestors).to include(AddressValidations)
+      end
+
       describe "variable presence validations" do
         context "when no presence attributes are specified" do
           it "validates presence of default attributes" do

@@ -7,11 +7,6 @@ module Location
 
     before_save :format_postal_code
 
-    validates :street, length: { maximum: 150 }
-    validates :number, length: { maximum: 20 }
-    validates :complement, length: { maximum: 40 }
-    validates :latitude, :longitude, numericality: true, allow_blank: true
-
     scope :full, ->{ eager_load(:district).eager_load(:city).eager_load(:state) }
     default_scope { full }
 

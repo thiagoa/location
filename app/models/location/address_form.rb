@@ -1,4 +1,6 @@
 require 'super_form'
+require 'active_support/concern'
+require 'location/address_validations'
 
 module Location
   class AddressNormalizer
@@ -127,8 +129,10 @@ module Location
   end
 
   module AddressNormalizable
-    def self.included(base)
-      base.before_save :normalize_attributes!
+    extend ActiveSupport::Concern
+
+    included do
+      before_save :normalize_attributes!
     end
 
     def normalizable_address_attributes=(attributes)
@@ -138,8 +142,7 @@ module Location
     private
 
     def current_normalizer
-      @normalizers ||= {}
-      @normalizers[postal_code] ||= AddressNormalizer.new(self)
+      (@normalizers ||= {})[postal_code] ||= AddressNormalizer.new(self)
     end
 
     def normalize_attributes!
@@ -152,6 +155,7 @@ module Location
 
   class AddressForm
     include SuperForm
+    include AddressValidations
     include AddressNormalizable
 
     def self.default_presence_attributes
