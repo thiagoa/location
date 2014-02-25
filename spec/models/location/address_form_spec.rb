@@ -139,11 +139,11 @@ module Location
 
     describe "normalizable attributes" do
       context "with no attributes" do
-        before { @normalized_fields = Location.configuration.normalized_fields }
-        after  { Location.configuration.normalized_fields = @normalized_fields }
+        before { @normalizable_attributes = Location.configuration.normalizable_attributes }
+        after  { Location.configuration.normalizable_attributes = @normalizable_attributes }
 
         it "normalizes whatever is specified in the configuration" do
-          Location.configuration.normalized_fields = %i{state city district}
+          Location.configuration.normalizable_attributes = %i{state city district}
           save_addresses
           expect_normalized_attributes %i{state city district}
         end

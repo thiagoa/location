@@ -2,21 +2,29 @@ require 'super_form'
 
 module Location
   class AddressNormalizer
-    def self.normalizable
+    extend Forwardable
+
+    def self.allowed_for_normalization
       %i{state city district}
     end
 
-    def initialize(postal_code, model)
-      @postal_code = postal_code
+    def self.default_normalizable
+      Location.configuration.normalizable_attributes
+    end
+
+    attr_reader :model
+    def_delegators :model, :address, :address=
+
+    def initialize(model)
       @model = model
     end
 
     def normalize!
-      Finder.find(@postal_code) do |f|
-        return false unless f.successful?
+      Finder.find(@model.postal_code) do |finder|
+        return false unless finder.successful?
 
         normalizable.each do |a|
-          value = f.address.send(a)
+          value = finder.address.send(a)
           @model.send("#{a}=", value) unless value.nil?
         end
       end
@@ -28,7 +36,7 @@ module Location
     end
 
     def normalizable
-      @normalizable ||= Location.configuration.normalized_fields
+      @normalizable ||= self.class.default_normalizable
       ensure_valid_normalizable!
 
       @normalizable
@@ -38,8 +46,19 @@ module Location
       normalizable.include?(attribute)
     end
 
-    def attributes_for(attr)
-      { name: @model.send(attr), normalized: normalizable?(attr) }
+    def attributes
+      @model.address_attributes
+    end
+
+    def parameterize_attribute(attribute)
+      {
+        name: @model.send(attribute),
+        normalized: normalizable?(attribute)
+      }
+    end
+
+    def address_persisted?
+      address && address.persisted?
     end
 
     private
@@ -51,20 +70,20 @@ module Location
     end
 
     def valid_normalizable?
-      valid = self.class.normalizable.slice(0, @normalizable.count)
+      valid = self.class.allowed_for_normalization.slice(0, @normalizable.count)
       valid == @normalizable || valid.reverse == @normalizable
     end
   end
 
   class AddressPersister
-    def initialize(model, normalizer)
-      @model = model
+    def initialize(normalizer, address)
       @normalizer = normalizer
+      @address = address
     end
 
     def persist!
       State.transaction(requires_new: true) do
-        if @model.address && @model.address.persisted?
+        if @address && @address.persisted?
           update
         else
           create
@@ -79,20 +98,21 @@ module Location
       city     = create_attribute(:city, state.cities.build)
       district = create_attribute(:district, city.districts.build)
 
-      @model.address = district.addresses.create!(@model.address_attributes)
+      @address = district.addresses.create!(@normalizer.attributes)
+      @normalizer.address = @address
     end
 
     def create_attribute(attribute, object)
       object = object.new if object.is_a?(Class)
-      attributes = @normalizer.attributes_for(attribute)
+      attributes = @normalizer.parameterize_attribute(attribute)
 
       object.find_or_save!(attributes)
     end
 
     def update
-      @model.address.update(@model.address_attributes)
+      @address.update(@normalizer.attributes)
 
-      district = update_attribute(@model.address, :district)
+      district = update_attribute(@address, :district)
       city     = update_attribute(district, :city)
 
       update_attribute(city, :state)
@@ -100,7 +120,8 @@ module Location
 
     def update_attribute(parent, attr)
       child = parent.send(attr) || parent.send("build_#{attr.to_s}")
-      child.update(@normalizer.attributes_for(attr))
+      attributes = @normalizer.parameterize_attribute(attr)
+      child.update(attributes)
       child
     end
   end
@@ -118,7 +139,7 @@ module Location
 
     def current_normalizer
       @normalizers ||= {}
-      @normalizers[postal_code] ||= AddressNormalizer.new(postal_code, self)
+      @normalizers[postal_code] ||= AddressNormalizer.new(self)
     end
 
     def normalize_attributes!
@@ -175,7 +196,7 @@ module Location
     private
 
     def persist!
-      AddressPersister.new(self, current_normalizer).persist!
+      AddressPersister.new(current_normalizer, address).persist!
     end
 
     def values_for_attributes(attributes)
