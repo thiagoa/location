@@ -3,10 +3,10 @@ require 'active_support/concern'
 module AddressValidations
   extend ActiveSupport::Concern
 
+  attr_accessor :postal_code
   attr_accessor :street
   attr_accessor :number
   attr_accessor :complement
-  attr_accessor :latitude
   attr_accessor :district
   attr_accessor :city
   attr_accessor :state
