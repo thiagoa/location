@@ -1,6 +1,6 @@
 require 'active_support/concern'
 
-module AddressValidations
+module AddressValidatable
   extend ActiveSupport::Concern
 
   attr_accessor :postal_code

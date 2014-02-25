@@ -215,7 +215,7 @@ module Location
 
     describe "validations" do
       it 'uses AddressValidations module' do
-        expect(build_address.class.ancestors).to include(AddressValidations)
+        expect(build_address.class.ancestors).to include(AddressValidatable)
       end
 
       describe "variable presence validations" do

@@ -1,12 +1,12 @@
 require 'super_form'
-require 'location/address_validations'
+require 'location/address_validatable'
 require 'location/address_normalizable'
 require 'location/address_persister'
 
 module Location
   class AddressForm
     include SuperForm
-    include AddressValidations
+    include AddressValidatable
     include AddressNormalizable
 
     def self.default_presence_attributes
