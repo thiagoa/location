@@ -60,9 +60,9 @@ module Location
 
         context "form update" do
           it "updates the underlying models" do
-            model         = @valid_address.model
-            address       = build_valid_address
-            address.model = model
+            model           = @valid_address.address
+            address         = build_valid_address
+            address.address = model
 
             address.street = 'Nicaragua Street'
             address.number = '54'

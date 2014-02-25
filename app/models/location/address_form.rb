@@ -38,6 +38,10 @@ module Location
       normalizable.include?(attribute)
     end
 
+    def attributes_for(attr)
+      { name: @model.send(attr), normalized: normalizable?(attr) }
+    end
+
     private
 
     def ensure_valid_normalizable!
@@ -49,6 +53,55 @@ module Location
     def valid_normalizable?
       valid = self.class.normalizable.slice(0, @normalizable.count)
       valid == @normalizable || valid.reverse == @normalizable
+    end
+  end
+
+  class AddressPersister
+    def initialize(model, normalizer)
+      @model = model
+      @normalizer = normalizer
+    end
+
+    def persist!
+      State.transaction(requires_new: true) do
+        if @model.address && @model.address.persisted?
+          update
+        else
+          create
+        end
+      end
+    end
+
+    private
+
+    def create
+      state    = create_attribute(:state, State)
+      city     = create_attribute(:city, state.cities.build)
+      district = create_attribute(:district, city.districts.build)
+
+      @model.address = district.addresses.create!(@model.address_attributes)
+    end
+
+    def create_attribute(attribute, object)
+      object = object.new if object.is_a?(Class)
+      attributes = @normalizer.attributes_for(attribute)
+
+      object.find_or_save!(attributes)
+    end
+
+    def update
+      @model.address.update(@model.address_attributes)
+
+      district = update_attribute(@model.address, :district)
+      city     = update_attribute(district, :city)
+
+      update_attribute(city, :state)
+    end
+
+    def update_attribute(parent, attr)
+      child = parent.send(attr) || parent.send("build_#{attr.to_s}")
+      child.update(@normalizer.attributes_for(attr))
+      child
     end
   end
 
@@ -99,7 +152,7 @@ module Location
       validates attr, presence: true, if: ->(a){ a.presence[attr] }
     end
 
-    attr_accessor :model
+    attr_accessor :address
 
     def presence
       @presence || validate_presence_of(AddressForm.default_presence_attributes)
@@ -122,47 +175,7 @@ module Location
     private
 
     def persist!
-      State.transaction(requires_new: true) do
-        if @model.try(:persisted?)
-          update
-        else
-          create
-        end
-      end
-    end
-
-    def create
-      state    = create_attribute(:state, State)
-      city     = create_attribute(:city, state.cities.build)
-      district = create_attribute(:district, city.districts.build)
-
-      @model = district.addresses.create!(address_attributes)
-    end
-
-    def update
-      @model.update(address_attributes)
-
-      district = update_attribute(@model, :district)
-      city     = update_attribute(district, :city)
-
-      update_attribute(city, :state)
-    end
-
-    def update_attribute(parent, attr)
-      child = parent.send(attr) || parent.send("build_#{attr.to_s}")
-      child.update(attributes_for(attr))
-      child
-    end
-
-    def attributes_for(attr)
-      { name: send(attr), normalized: current_normalizer.normalizable?(attr) }
-    end
-
-    def create_attribute(attribute, object)
-      object = object.new if object.is_a?(Class)
-      attributes = attributes_for(attribute)
-
-      object.find_or_save!(attributes)
+      AddressPersister.new(self, current_normalizer).persist!
     end
 
     def values_for_attributes(attributes)
