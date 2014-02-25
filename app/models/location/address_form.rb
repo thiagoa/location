@@ -57,10 +57,6 @@ module Location
       }
     end
 
-    def address_persisted?
-      address && address.persisted?
-    end
-
     private
 
     def ensure_valid_normalizable!
