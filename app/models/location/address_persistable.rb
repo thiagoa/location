@@ -1,6 +1,7 @@
 require 'active_support/concern'
-require 'location/address_normalizable'
+require 'location/address_attributable'
 require 'location/address_validatable'
+require 'location/address_normalizable'
 
 module Location
   module AddressPersistable
@@ -9,10 +10,11 @@ module Location
     attr_writer :address_persister
 
     included do
-      after_save :persist_address!
-
+      include Location::AddressAttributable
       include Location::AddressValidatable
       include Location::AddressNormalizable
+
+      before_save :persist_address!
     end
 
     def address_persister

@@ -87,6 +87,24 @@ module Location
         end
       end
     end
+
+    context 'when finding something in the model' do
+      it 'assigns the address attributes to the virtual attributes' do
+        person = grab_model_with_persister
+        person.save!
+
+        last_person = Person.last
+
+        expect(last_person).to eq person
+
+        expect(last_person.postal_code).to eq '59000001'
+        expect(last_person.street).to eq 'You know my name, look up the number'
+        expect(last_person.number).to eq '1983'
+        expect(last_person.city).to eq 'Natal'
+        expect(last_person.state).to eq 'RN'
+        expect(last_person.district).to eq "That's right"
+      end
+    end
   end
 end
 
