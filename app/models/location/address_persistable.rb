@@ -11,8 +11,8 @@ module Location
     included do
       after_save :persist_address!
 
-      include AddressValidatable
-      include AddressNormalizable
+      include Location::AddressValidatable
+      include Location::AddressNormalizable
     end
 
     def address_persister

@@ -1,11 +1,11 @@
 require 'spec_helper'
 require 'location/address_validatable'
 
-describe AddressValidatable do
+describe Location::AddressValidatable do
   let(:model) {
     Class.new do
       include ActiveModel::Model
-      include AddressValidatable
+      include Location::AddressValidatable
 
       def self.model_name
         ActiveModel::Name.new(self, nil, 'anonymous')

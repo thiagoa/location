@@ -14,7 +14,7 @@ module Location
     end
 
     def address_normalizer
-      (@normalizers ||= {})[postal_code] ||= AddressNormalizer.new(self)
+      (@normalizers ||= {})[postal_code] ||= Location::AddressNormalizer.new(self)
     end
 
     private
