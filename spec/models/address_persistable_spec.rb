@@ -4,12 +4,11 @@ require 'location/address_persistable'
 module Location
   describe AddressPersistable do
     before(:all) do
-      @default_service = Location.configuration.default_service
-      setup_finder
+      stub_finder
     end
 
     after(:all) do
-      Location.configuration.default_service = @default_service
+      unstub_finder
     end
 
     describe 'address persister' do
@@ -124,22 +123,6 @@ module Location
       end
     end
   end
-end
-
-def setup_finder
-  Location::Services::StubbedService.set_result('59000-001', {
-    city: 'Natal',
-    state: 'RN',
-    district: 'Ponta Negra'
-  })
-
-  Location::Services::StubbedService.set_result('59001-002', {
-    city: 'Parnamirim',
-    state: 'RN',
-    district: 'Centro'
-  })
-
-  Location.configuration.default_service = Location::Services::StubbedService
 end
 
 def grab_model(attributes = {})

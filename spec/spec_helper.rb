@@ -22,6 +22,7 @@ RSpec.configure do |config|
   config.order = "random"
   config.alias_example_to :expect_it
   config.filter_run_excluding external: true
+  config.include FinderHelpers
 end
 
 RSpec::Core::MemoizedHelpers.module_eval do
