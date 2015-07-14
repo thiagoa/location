@@ -9,14 +9,6 @@ module Location
 
     attr_writer :address_persister
 
-    included do
-      include Location::AddressAttributable
-      include Location::AddressValidatable
-      include Location::AddressNormalizable
-
-      before_save :persist_address!
-    end
-
     def address_persister
       @address_persister ||= AddressPersister.new(address_normalizer, address)
     end
