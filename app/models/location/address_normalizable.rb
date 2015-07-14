@@ -3,12 +3,6 @@ require 'location/address_normalizer'
 
 module Location
   module AddressNormalizable
-    extend ActiveSupport::Concern
-
-    included do
-      before_save :normalize_attributes!
-    end
-
     def normalizable_address_attributes=(attributes)
       address_normalizer.normalizable = attributes
     end
